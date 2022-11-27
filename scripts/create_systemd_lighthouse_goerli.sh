@@ -25,7 +25,7 @@ Type=simple
 User=${USER}
 ExecStart=${APP_PATH} beacon_node \
 	--checkpoint-sync-url=https://goerli.checkpoint-sync.ethpandaops.io \
-	--datadir="${HOME}/lighthouse-goerli" \
+	--datadir="${HOME}/.lighthouse/goerli" \
 	--disable-upnp \
 	--execution-endpoint="http://127.0.0.1:${GOERLI_EXECUTION_PORT}" \
 	--execution-jwt="${HOME}/.goerli/jwt.hex" \

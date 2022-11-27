@@ -25,7 +25,7 @@ Type=simple
 User=${USER}
 ExecStart=${APP_PATH} beacon_node \
 	--checkpoint-sync-url=https://beaconstate.info \
-	--datadir="${HOME}/lighthouse" \
+	--datadir="${HOME}/.lighthouse/mainnet" \
 	--disable-upnp \
 	--execution-endpoint="http://127.0.0.1:${EXECUTION_PORT}" \
 	--execution-jwt="${HOME}/.ethereum/jwt.hex" \
