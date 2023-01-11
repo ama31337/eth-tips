@@ -1,23 +1,39 @@
 #!/bin/sh
 
+. ./env.sh
 
-APP_NAME='geth'
-SERVICE_NAME='geth'
+APP_NAME='heimdalld'
+SERVICE_NAME='heimdall-polygon'
 
 APP_PATH=`which $APP_NAME`
+mkdir -p ${HOME}/.local/share/heimdall/
 
 cat > ${HOME}/${SERVICE_NAME}.service <<EOF
 [Unit]
-Description=geth service
+Description=heimdall polygon service
 After=network.target
 
 [Service]
-Type=simple
+CPUWeight=90
+IOWeight=90
+LimitNOFILE=1024000
+LimitNPROC=1024000
+MemoryMax=100G
 Restart=always
 RestartSec=3
-LimitNOFILE=1024000
+TimeoutStopSec=600
+Type=simple
 User=${USER}
-ExecStart=${APP_PATH} --datadir=${HOME}/.ethereum --port=44001 --cache=2048 --rpc --rpcport=44002 --rpcapi=eth,web3,net,personal --syncmode=fast --allow-insecure-unlock
+WorkingDirectory=$HOME/.local/share/heimdall/
+ExecStart=${APP_PATH} \
+	--chain-id=137 \
+	--home="${HOME}/.local/share/heimdall/" \
+	--laddr tcp://127.0.0.1:${BOR_HIEMDALL_PORT} \
+	--with-heimdall-config ${HOME}/.local/share/heimdall/config/heimdall-config.toml \
+	rest-server 
+
+
+KillSignal=SIGHUP
 
 [Install]
 WantedBy=default.target
@@ -42,8 +58,13 @@ else
 	echo "alias already added"
 fi
 
+# setup firewall 
+sudo ufw allow ${BOR_HIEMDALL_PORT} comment 'bot heimdall port'
+
+
+# done
 echo "done, now run"
 echo "source ~/.bashrc"
 echo "and after that start ETH node"
-echo "gethstart"
+echo "${SERVICE_NAME}start;${SERVICE_NAME}logs"
 

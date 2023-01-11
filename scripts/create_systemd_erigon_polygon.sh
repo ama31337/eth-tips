@@ -1,14 +1,16 @@
 #!/bin/sh
 
+. ./env.sh
 
-APP_NAME='nethermind'
-SERVICE_NAME='nethermind'
+APP_NAME='erigon'
+SERVICE_NAME='erigon-polygon'
 
 APP_PATH=`which $APP_NAME`
+mkdir -p ${HOME}/.polygon/
 
 cat > ${HOME}/${SERVICE_NAME}.service <<EOF
 [Unit]
-Description=${SERVICE_NAME} Node
+Description=erigon polygon service
 After=network.target
 
 [Service]
@@ -22,21 +24,32 @@ RestartSec=3
 TimeoutStopSec=600
 Type=simple
 User=${USER}
-ExecStart=${APP_PATH} \
-	--datadir=${HOME}/nethermind/data \
-	--config xdai_archive \
-	--HealthChecks.Enabled true \
-	--Merge.Enabled=True \
-	--Network.P2PPort=38303 \
-	--Network.DiscoveryPort=38303 \
-	--JsonRpc.Enabled=True \
-	--JsonRpc.Timeout=20000 \
-	--JsonRpc.Host="127.0.0.1" \
-	--JsonRpc.Port=38545 \
-	--JsonRpc.EnabledModules="Eth,Subscribe,Trace,TxPool,Web3,Personal,Proof,Net,Parity,Health" \
-	--JsonRpc.EnginePort=38551 \
-	--JsonRpc.EngineHost="127.0.0.1" \
-	--JsonRpc.JwtSecretFile="${HOME}/nethermind/data/jwt-secret"
+ExecStart=${APP_PATH} --datadir="${HOME}/.polygon/" \
+	--authrpc.addr="127.0.0.1" \
+	--authrpc.port="${POLYGON_AUTHRPC_PORT}" \
+	--bor.heimdall="http://127.0.0.1:${BOR_HIEMDALL_PORT}" \
+	--chain="bor-mainnet" \
+	--ethash.dagdir="${HOME}/.polygon/ethash" \
+	--http \
+	--http.addr="127.0.0.1" \
+	--http.api="eth,debug,net,trace,web3,erigon,bor" \
+	--http.compression \
+	--http.corsdomain="*" \
+	--http.port="${POLYGON_HTTP_PORT}" \
+	--http.vhosts="*" \
+	--metrics \
+	--metrics.addr="0.0.0.0" \
+	--metrics.port="${POLYGON_METRICS_PORT}" \
+	--port=${POLYGON_P2P_PORT} \
+	--private.api.addr="0.0.0.0:${POLYGON_API_PORT}" \
+	--rpc.gascap="300000000" \
+	--snapshots="true" \
+	--torrent.download.rate=100mb \
+	--torrent.port=${POLYGON_TORRENT_PORT} \
+	--ws \
+	--ws.compression
+
+KillSignal=SIGHUP
 
 [Install]
 WantedBy=default.target
@@ -61,8 +74,14 @@ else
 	echo "alias already added"
 fi
 
+# setup firewall 
+sudo ufw allow ${POLYGON_P2P_PORT} comment 'erigon polygon peers'
+sudo ufw allow ${POLYGON_TORRENT_PORT} comment 'erigon polygon torrent'
+
+
+# done
 echo "done, now run"
 echo "source ~/.bashrc"
 echo "and after that start ETH node"
-echo "${SERVICE_NAME}start"
+echo "${SERVICE_NAME}start;${SERVICE_NAME}logs"
 

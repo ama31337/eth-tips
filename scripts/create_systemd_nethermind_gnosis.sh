@@ -25,7 +25,7 @@ Type=simple
 User=${USER}
 WorkingDirectory=${HOME}
 ExecStart=${APP_PATH} \
-	--datadir=${HOME}/nethermind/data \
+	--datadir=${HOME}/.nethermind/gnosis \
 	--config xdai_archive \
 	--HealthChecks.Enabled true \
 	--Network.MaxActivePeers 256 \
@@ -38,7 +38,7 @@ ExecStart=${APP_PATH} \
 	--JsonRpc.EnabledModules="Eth,Subscribe,Trace,TxPool,Web3,Personal,Proof,Net,Parity,Health" \
 	--JsonRpc.EnginePort=${GNOSIS_ENGINE_PORT} \
 	--JsonRpc.EngineHost="127.0.0.1" \
-	--JsonRpc.JwtSecretFile="${HOME}/jwt.hex"
+	--JsonRpc.JwtSecretFile="${HOME}/.nethermind/gnosis/jwt.hex"
 
 [Install]
 WantedBy=default.target
@@ -47,16 +47,25 @@ EOF
 sudo mv ${HOME}/${SERVICE_NAME}.service /etc/systemd/system/${SERVICE_NAME}.service
 sudo systemctl daemon-reload
 
-
 # create aliases
-echo "" >> ~/.bashrc
-echo "# ${SERVICE_NAME} alias" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}start='sudo systemctl start ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}stop='sudo systemctl stop ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}restart='sudo systemctl restart ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}status='sudo systemctl status ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}logs='sudo journalctl -u ${SERVICE_NAME} -f'" >> ~/.bashrc
+ALIAS=$(cat ~/.bashrc | grep ${SERVICE_NAME})
+if [ -z "${ALIAS}" ] 
+then
+	echo "" >> ~/.bashrc
+	echo "# ${SERVICE_NAME} alias" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}start='sudo systemctl start ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}stop='sudo systemctl stop ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}restart='sudo systemctl restart ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}status='sudo systemctl status ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}logs='sudo journalctl -u ${SERVICE_NAME} -f'" >> ~/.bashrc
+else
+	echo "alias already added"
+fi
 
+# add ufw rule
+sudo ufw allow ${GNOSIS_NETWORK_PORT} comment 'nethermind gnosis'
+
+# done
 echo "done, now run"
 echo "source ~/.bashrc"
 echo "and after that start node"

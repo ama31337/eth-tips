@@ -5,11 +5,11 @@
 APP_NAME='lighthouse'
 SERVICE_NAME='lighthouse-goerli'
 
-APP_PATH=`which $APP_NAME`
+APP_PATH=$(which ${APP_NAME})
 
 cat > ${HOME}/${SERVICE_NAME}.service <<EOF
 [Unit]
-Description=${APP_NAME} service
+Description=${SERVICE_NAME} service
 After=network.target
 
 [Service]
@@ -32,12 +32,14 @@ ExecStart=${APP_PATH} beacon_node \
 	--http \
 	--http-address="127.0.0.1" \
 	--http-allow-origin="*" \
+	--http-port="${GOERLI_LIGHTHOUSE_HTTP_PORT}" \
 	--import-all-attestations \
 	--metrics \
 	--metrics-address="0.0.0.0" \
 	--metrics-allow-origin="*" \
 	--metrics-port="${GOERLI_METRICS_PORT_LIGHHOUSE}" \
 	--network="goerli" \
+	--port="${GOERLI_LIGHTHOUSE_LISTEN_PORT}" \
 	--private \
 	--subscribe-all-subnets \
 	--validator-monitor-auto
@@ -51,17 +53,22 @@ EOF
 sudo mv ${HOME}/${SERVICE_NAME}.service /etc/systemd/system/${SERVICE_NAME}.service
 sudo systemctl daemon-reload
 
-
 # create aliases
-echo "" >> ~/.bashrc
-echo "# ${SERVICE_NAME} alias" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}start='sudo systemctl start ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}stop='sudo systemctl stop ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}restart='sudo systemctl restart ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}logs='sudo journalctl -u ${SERVICE_NAME} -f'" >> ~/.bashrc
+ALIAS=$(cat ~/.bashrc | grep ${SERVICE_NAME})
+if [ -z "${ALIAS}" ] 
+then
+	echo "" >> ~/.bashrc
+	echo "# ${SERVICE_NAME} alias" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}start='sudo systemctl start ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}stop='sudo systemctl stop ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}restart='sudo systemctl restart ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}status='sudo systemctl status ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}logs='sudo journalctl -u ${SERVICE_NAME} -f'" >> ~/.bashrc
+else
+	echo "alias already added"
+fi
 
 echo "done, now run"
 echo "source ~/.bashrc"
 echo "and after that start ${SERVICE_NAME} node"
-echo "${SERVICE_NAME}start"
-
+echo "${SERVICE_NAME}restart;${SERVICE_NAME}logs"

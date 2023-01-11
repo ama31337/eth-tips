@@ -28,7 +28,7 @@ ExecStart=${APP_PATH} beacon_node \
 	--datadir="${HOME}/.lighthouse/gnosis" \
 	--disable-upnp \
 	--execution-endpoint="http://127.0.0.1:${GNOSIS_EXECUTION_PORT}" \
-	--execution-jwt="${HOME}/jwt.hex" \
+	--execution-jwt="${HOME}/.nethermind/gnosis/jwt.hex" \
 	--http \
 	--http-address="127.0.0.1" \
 	--http-allow-origin="*" \
@@ -53,17 +53,22 @@ EOF
 sudo mv ${HOME}/${SERVICE_NAME}.service /etc/systemd/system/${SERVICE_NAME}.service
 sudo systemctl daemon-reload
 
-
 # create aliases
-echo "" >> ~/.bashrc
-echo "# ${SERVICE_NAME} alias" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}start='sudo systemctl start ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}stop='sudo systemctl stop ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}restart='sudo systemctl restart ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}logs='sudo journalctl -u ${SERVICE_NAME} -f'" >> ~/.bashrc
+ALIAS=$(cat ~/.bashrc | grep ${SERVICE_NAME})
+if [ -z "${ALIAS}" ]
+then
+	echo "" >> ~/.bashrc
+	echo "# ${SERVICE_NAME} alias" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}start='sudo systemctl start ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}stop='sudo systemctl stop ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}restart='sudo systemctl restart ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}status='sudo systemctl status ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}logs='sudo journalctl -u ${SERVICE_NAME} -f'" >> ~/.bashrc
+else
+	echo "alias already added"
+fi
 
 echo "done, now run"
 echo "source ~/.bashrc"
 echo "and after that start ${SERVICE_NAME} node"
-echo "${SERVICE_NAME}start"
-
+echo "${SERVICE_NAME}restart;${SERVICE_NAME}logs"

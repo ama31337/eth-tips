@@ -28,12 +28,19 @@ sudo systemctl daemon-reload
 
 
 # create aliases
-echo "" >> ~/.bashrc
-echo "# ${SERVICE_NAME} alias" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}start='sudo systemctl start ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}stop='sudo systemctl stop ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}restart='sudo systemctl restart ${SERVICE_NAME}.service'" >> ~/.bashrc
-echo "alias ${SERVICE_NAME}logs='sudo journalctl -u ${SERVICE_NAME} -f'" >> ~/.bashrc
+ALIAS=$(cat ~/.bashrc | grep ${SERVICE_NAME})
+if [ -z "${ALIAS}" ] 
+then
+	echo "" >> ~/.bashrc
+	echo "# ${SERVICE_NAME} alias" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}start='sudo systemctl start ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}stop='sudo systemctl stop ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}restart='sudo systemctl restart ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}status='sudo systemctl status ${SERVICE_NAME}.service'" >> ~/.bashrc
+	echo "alias ${SERVICE_NAME}logs='sudo journalctl -u ${SERVICE_NAME} -f'" >> ~/.bashrc
+else
+	echo "alias already added"
+fi
 
 echo "done, now run"
 echo "source ~/.bashrc"
