@@ -1,8 +1,13 @@
 #!/bin/sh
 
+# RPC 
+ETH_RPC="http://graph-lux8.rpc.lux8.net:8544"
+
 ################### Erigon configs ###################
 
-ERIGON_VER="2.30.0" # https://github.com/ledgerwatch/erigon/releases 
+ERIGON_MAINNET_VER="2.42.0"
+ERIGON_VER="2.40.1" # https://github.com/ledgerwatch/erigon/releases 
+ERIGON_POLYGON_VER="v0.0.5" # https://github.com/maticnetwork/erigon
 
 ### Erigon mainnet ###
 HTTP_PORT=8545
@@ -37,7 +42,8 @@ BOR_HIEMDALL_PORT=1317 # default
 
 ################### Lighthouse configs ####################
 
-LIGHTHOUSE_VER="v3.3.0"
+LIGHTHOUSE_MAINNET_VER="v4.0.1"
+LIGHTHOUSE_VER="v3.5.1"
 
 ### Lighthouse mainnet ###
 EXECUTION_PORT=${AUTHRPC_PORT}
@@ -59,3 +65,13 @@ GNOSIS_METRICS_PORT_LIGHHOUSE=44554
 GNOSIS_LIGHTHOUSE_HTTP_PORT=5252
 GNOSIS_LIGHTHOUSE_METRICS_PORT=5254
 GNOSIS_LIGHTHOUSE_LISTEN_PORT=9200
+
+################### Arbitrum configs ####################
+ARBITRUM_CLASSIC_RPC_PORT=9656
+ARBITRUM_NITRO_HTTP_PORT=9657
+ARBITRUM_NITRO_RPC_CLASSIC_REDIRECT_PORT=${ARBITRUM_CLASSIC_RPC_PORT}
+
+################### Fantom configs ####################
+FANTOM_P2P_PORT=5350
+FANTOM_HTTP_PORT=19545
+FANTOM_WSS_PORT=19546
