@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # RPC 
-ETH_RPC="http://graph-lux8.rpc.lux8.net:8544"
+ETH_RPC=""
 
 ################### Erigon configs ###################
 
